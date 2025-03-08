@@ -109,6 +109,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       background-color: #f8fafc;
+      width: 100%;
     }
 
     .question-info {
@@ -118,6 +119,12 @@
     .question-info p {
       margin: 0.5rem 0;
       color: #4a5568;
+      text-transform: capitalize;
+    }
+
+    .question-image-container {
+      position: relative;
+      width: 100%;
     }
 
     .question-image {
@@ -125,6 +132,53 @@
       height: auto;
       border-radius: 8px;
       margin-top: 1rem;
+    }
+
+    .zoom-icon {
+      position: absolute;
+      top: 1.5rem;
+      right: 0.5rem;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .zoom-icon:hover {
+      background-color: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 90vh;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .error-box {
@@ -327,7 +381,23 @@
           <p>Variant: <span id="questionVariant"></span></p>
           <p>Paper: <span id="questionPaper"></span></p>
         </div>
-        <img id="questionImage" class="question-image" alt="Question">
+        <div class="question-image-container">
+          <img id="questionImage" class="question-image" alt="Question">
+          <div class="zoom-icon" onclick="openModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="11" y1="8" x2="11" y2="14"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal for zoomed image -->
+      <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modalImage" class="modal-content">
       </div>
       
       <div id="randomQuestionError" class="error-box" style="display: none;"></div>
@@ -497,7 +567,6 @@
       const errorDiv = document.getElementById('randomQuestionError');
       
       try {
-        // Convert topic to lowercase to match database format
         const dbTopic = topic ? topic.toLowerCase() : undefined;
         console.log('Sending request with payload:', { action: 'random_question', topic: dbTopic, subjectId: subjectId });
         
@@ -531,11 +600,11 @@
             throw new Error(data.error);
           }
 
-          // Add null checks and default values
-          document.getElementById('questionTopic').textContent = data.topic || 'N/A';
+          // Update display with formatted data
+          document.getElementById('questionTopic').textContent = data.topic ? data.topic.charAt(0).toUpperCase() + data.topic.slice(1) : 'N/A';
           document.getElementById('questionMarks').textContent = data.marks || 'N/A';
           document.getElementById('questionYear').textContent = data.year || 'N/A';
-          document.getElementById('questionMonth').textContent = data.month || 'N/A';
+          document.getElementById('questionMonth').textContent = formatMonth(data.month);
           document.getElementById('questionVariant').textContent = data.variant || 'N/A';
           document.getElementById('questionPaper').textContent = data.paper || 'N/A';
           
@@ -554,7 +623,6 @@
             errorDiv.style.display = 'block';
           }
           
-          // Show result and hide error
           resultDiv.style.display = 'block';
           errorDiv.style.display = 'none';
         } else {
@@ -614,6 +682,43 @@
 
     // Initialize random topic dropdown based on default subject selection
     document.getElementById('randomSubjectSelect').dispatchEvent(new Event('change'));
+
+    // Add modal functions
+    function openModal() {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      const img = document.getElementById('questionImage');
+      modal.style.display = "block";
+      modalImg.src = img.src;
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = "none";
+    }
+
+    // Close modal when clicking outside the image
+    window.onclick = function(event) {
+      const modal = document.getElementById('imageModal');
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // Format month function
+    function formatMonth(month) {
+      if (!month) return 'N/A';
+      month = month.toLowerCase();
+      switch(month) {
+        case 'm':
+          return 'March';
+        case 's':
+          return 'May/June';
+        case 'w':
+          return 'October';
+        default:
+          return month;
+      }
+    }
   </script>
 </body>
 </html>
