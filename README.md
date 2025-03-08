@@ -2,8 +2,6 @@
 
 A powerful web application that generates customized mathematics exam papers and practice questions for IGCSE Extended Mathematics (0580) and Additional Mathematics (0606) syllabi.
 
-![Paper Generator Interface](assets/interface.png)
-
 ## Features
 
 ### 1. Custom Paper Generation
