@@ -9,7 +9,7 @@ import io
 
 
 def exam(topic, mark, subjectId, info):
-    fields = ["Topic", "Marks"]ge
+    fields = ["Topic", "Marks"]
 
     print(topic, mark, subjectId)
     
@@ -193,5 +193,5 @@ def exam(topic, mark, subjectId, info):
     print("Tag addition successful")
 
     if p == None:
-        return "Error"
+        return "Error"    
     return p
