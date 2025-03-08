@@ -245,6 +245,14 @@
 
     .question-info {
       margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .question-info.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .question-info p {
@@ -256,6 +264,14 @@
     .question-image-container {
       position: relative;
       width: 100%;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease 0.2s;
+    }
+
+    .question-image-container.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .question-image {
@@ -319,6 +335,44 @@
       border-radius: 8px;
       margin-top: 1rem;
       text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .error-box.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .error-box svg {
+      width: 20px;
+      height: 20px;
+      stroke: #c53030;
+    }
+
+    .error-message {
+      font-weight: 500;
+    }
+
+    .retry-button {
+      background: none;
+      border: none;
+      color: #c53030;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      font-size: 0.875rem;
+      margin-left: auto;
+    }
+
+    .retry-button:hover {
+      color: #9b2c2c;
     }
 
     #mark-entry {
@@ -565,19 +619,23 @@
     }
 
     .progress-container {
-      display: none;
-      margin-top: 1rem;
+      position: absolute;
+      width: 100%;
       padding: 1rem;
       border-radius: 8px;
       background-color: #f8fafc;
       opacity: 0;
-      transform: translateY(-20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
     }
 
     .progress-container.visible {
       opacity: 1;
+      visibility: visible;
       transform: translateY(0);
+      pointer-events: auto;
     }
 
     .progress-steps {
@@ -634,6 +692,89 @@
 
     .card button.expanded {
       margin-bottom: 2rem;
+    }
+
+    .button-container {
+      margin-top: 1.5rem;
+    }
+
+    .progress-wrapper {
+      min-height: 120px;  /* Reserved space for progress indicators */
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .error-box {
+      background-color: #fff5f5;
+      color: #c53030;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .error-box.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .error-box svg {
+      width: 20px;
+      height: 20px;
+      stroke: #c53030;
+    }
+
+    .error-message {
+      font-weight: 500;
+    }
+
+    .retry-button {
+      background: none;
+      border: none;
+      color: #c53030;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      font-size: 0.875rem;
+      margin-left: auto;
+    }
+
+    .retry-button:hover {
+      color: #9b2c2c;
+    }
+
+    /* Add styles for random question animations */
+    .question-info {
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .question-info.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .question-image-container {
+      position: relative;
+      width: 100%;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease 0.2s;
+    }
+
+    .question-image-container.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -698,6 +839,7 @@
           <option value="ex">Extended Mathematics (0580)</option>
           <option value="add">Additional Mathematics (0606)</option>
         </select>
+        <input type="hidden" id="subjectId" value="0570">
       </div>
 
       <div id="mark-entry">
@@ -793,36 +935,45 @@
         </div>
       </div>
 
-      <progress id="loading" style="display: none;"></progress>
-      <input type="hidden" id="subjectId">
-      <button type="button" onclick="myFunc()"><span>Generate Paper</span></button>
-      <div class="error-box" id="error-box" style="display: none;">Error in generating paper, please try again.</div>
-      <div class="progress-container" id="progressContainer">
-        <div class="progress-steps">
-          <div class="progress-step" id="step1">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M8 12l2 2 4-4"></path>
-            </svg>
-            <span>Processing topics</span>
-          </div>
-          <div class="progress-step" id="step2">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M8 12l2 2 4-4"></path>
-            </svg>
-            <span>Generating questions</span>
-          </div>
-          <div class="progress-step" id="step3">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M8 12l2 2 4-4"></path>
-            </svg>
-            <span>Creating PDF</span>
+      <div class="button-container">
+        <div class="progress-wrapper">
+          <div class="progress-container" id="progressContainer">
+            <div class="progress-steps">
+              <div class="progress-step" id="step1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12l2 2 4-4"></path>
+                </svg>
+                <span>Processing topics</span>
+              </div>
+              <div class="progress-step" id="step2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12l2 2 4-4"></path>
+                </svg>
+                <span>Generating questions</span>
+              </div>
+              <div class="progress-step" id="step3">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12l2 2 4-4"></path>
+                </svg>
+                <span>Creating PDF</span>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
           </div>
         </div>
-        <div class="progress-bar">
-          <div class="progress-bar-fill" id="progressBarFill"></div>
+        <button type="button" onclick="myFunc()"><span>Generate Paper</span></button>
+        <div class="error-box" id="error-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12" y2="16"></line>
+          </svg>
+          <span class="error-message"></span>
         </div>
       </div>
     </div>
@@ -894,21 +1045,26 @@
     
     function myFunc() {
       var callAPI = (topic, mark, info) => {
-        // Show progress container and start progress animation
         const progressContainer = document.getElementById('progressContainer');
         const generateButton = document.querySelector('.card:first-child button');
+        const errorBox = document.getElementById('error-box');
         
-        // Add expanded class to button first
-        generateButton.classList.add('expanded');
-        generateButton.disabled = true;
+        // Reset error state
+        errorBox.classList.remove('visible');
+        errorBox.querySelector('.error-message').textContent = '';
         
-        // Short delay before showing progress container
-        setTimeout(() => {
-          progressContainer.style.display = 'block';
-          // Force reflow
-          progressContainer.offsetHeight;
+        // Reset progress container
+        const progressBarFill = document.getElementById('progressBarFill');
+        progressBarFill.style.width = '0';
+        document.querySelectorAll('.progress-step').forEach(step => step.classList.remove('active'));
+        
+        // Show progress container with smooth animation
+        progressContainer.style.display = 'block';
+        // Force reflow
+        progressContainer.offsetHeight;
+        requestAnimationFrame(() => {
           progressContainer.classList.add('visible');
-        }, 300);
+        });
         
         let currentStep = 0;
         const totalTime = 5000; // 5 seconds total animation
@@ -920,6 +1076,12 @@
             updateProgress(currentStep);
           }
         }, stepTime);
+
+        // Add timeout for long-running requests
+        const timeout = setTimeout(() => {
+          showError('Request timed out. Please try again.');
+          cleanup();
+        }, 15000);
 
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
@@ -948,41 +1110,39 @@
                 const responseBody = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
                 const url = responseBody.url;
                 
-                if (url === "Error") {
-                  throw new Error("Failed to generate paper");
+                if (!url || url === "Error" || responseBody.error) {
+                  throw new Error(responseBody.error || "Failed to generate paper");
                 }
                 
-                var errorBox = document.getElementById('error-box');
-                errorBox.style.display = "none";
-                
-                var link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('target', '_blank');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Only open new tab if we have a valid URL
+                window.open(url, '_blank');
               } catch (error) {
-                var errorBox = document.getElementById('error-box');
-                errorBox.innerHTML = "Error generating paper: " + error.message;
-                errorBox.style.display = "block";
+                showError('Error generating paper: ' + error.message);
               }
             })
             .catch(error => {
-              errCount = errCount + 1;
-              var errorBox = document.getElementById('error-box');
-              errorBox.innerHTML = "Error in generating paper, please try again " + "(" + errCount + ")";
-              errorBox.style.display = "block";
+              showError('Failed to generate paper. Please try again.');
             })
             .finally(() => {
-              clearInterval(progressInterval);
-              progressContainer.classList.remove('visible');
-              setTimeout(() => {
-                progressContainer.style.display = 'none';
-                generateButton.classList.remove('expanded');
-                generateButton.disabled = false;
-              }, 300);
+              clearTimeout(timeout);
+              cleanup();
             });
         }, totalTime);
+
+        function cleanup() {
+          clearInterval(progressInterval);
+          progressContainer.classList.remove('visible');
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+            generateButton.disabled = false;
+          }, 300);
+        }
+
+        function showError(message) {
+          const errorBox = document.getElementById('error-box');
+          errorBox.querySelector('.error-message').textContent = message;
+          errorBox.classList.add('visible');
+        }
       };
       
       var mark = document.getElementById("mark").value;
@@ -997,7 +1157,7 @@
 
       callAPI(selectedTopicsValues, mark, newCheckboxValue);
     }
-    
+
     function updateValue(val) {
       document.getElementById('value').innerHTML = val;
     }
@@ -1103,6 +1263,15 @@
             throw new Error(data.error);
           }
 
+          // Show question info with animation
+          const questionInfo = document.querySelector('.question-info');
+          const imageContainer = document.querySelector('.question-image-container');
+          
+          // Reset animations
+          questionInfo.classList.remove('visible');
+          imageContainer.classList.remove('visible');
+          
+          // Update content
           document.getElementById('questionTopic').textContent = data.topic ? data.topic.charAt(0).toUpperCase() + data.topic.slice(1) : 'N/A';
           document.getElementById('questionMarks').textContent = data.marks || 'N/A';
           document.getElementById('questionYear').textContent = data.year || 'N/A';
@@ -1124,6 +1293,12 @@
           
           resultDiv.style.display = 'block';
           errorDiv.style.display = 'none';
+          
+          // Trigger animations
+          requestAnimationFrame(() => {
+            questionInfo.classList.add('visible');
+            imageContainer.classList.add('visible');
+          });
         } else {
           throw new Error(responseData.error || responseData.body?.error || 'Failed to generate question');
         }
@@ -1268,6 +1443,15 @@
             throw new Error(data.error);
           }
 
+          // Show question info with animation
+          const questionInfo = document.querySelector('.question-info');
+          const imageContainer = document.querySelector('.question-image-container');
+          
+          // Reset animations
+          questionInfo.classList.remove('visible');
+          imageContainer.classList.remove('visible');
+          
+          // Update content
           document.getElementById('questionTopic').textContent = data.topic ? data.topic.charAt(0).toUpperCase() + data.topic.slice(1) : 'N/A';
           document.getElementById('questionMarks').textContent = data.marks || 'N/A';
           document.getElementById('questionYear').textContent = data.year || 'N/A';
@@ -1289,6 +1473,12 @@
           
           resultDiv.style.display = 'block';
           errorDiv.style.display = 'none';
+          
+          // Trigger animations
+          requestAnimationFrame(() => {
+            questionInfo.classList.add('visible');
+            imageContainer.classList.add('visible');
+          });
         } else {
           throw new Error(responseData.error || responseData.body?.error || 'Failed to generate question');
         }
