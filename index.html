@@ -361,23 +361,37 @@
         };
 
         fetch('https://dvue15t90b.execute-api.ap-southeast-2.amazonaws.com/dev', requestOptions)
-          .then(response => response.text())
+          .then(response => response.json())
           .then(result => {
-            var url = JSON.parse(result).url;
-            console.log(url);
-            url = url.replace('https://', '');
-            url = url.slice(1,-1);
-            url = "//".concat(url);
-            
-            var errorBox = document.getElementById('error-box');
-            errorBox.style.display = "none";
-            
-            // Create and click download link
-            var link = document.createElement('a');
-            link.setAttribute('href', url);
-            console.log(link.href);
-            link.download = 'your_pdf_file.pdf';
-            link.click();
+            try {
+              // Parse the response body if it's a string
+              const responseBody = typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+              
+              // Get the URL from the response
+              const url = responseBody.url;
+              console.log('Received URL:', url);
+              
+              if (url === "Error") {
+                throw new Error("Failed to generate paper");
+              }
+              
+              var errorBox = document.getElementById('error-box');
+              errorBox.style.display = "none";
+              
+              // Create and click download link
+              var link = document.createElement('a');
+              link.setAttribute('href', url);
+              console.log('Download link:', link.href);
+              link.setAttribute('target', '_blank'); // Open in new tab
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            } catch (error) {
+              console.error('Error processing response:', error);
+              var errorBox = document.getElementById('error-box');
+              errorBox.innerHTML = "Error generating paper: " + error.message;
+              errorBox.style.display = "block";
+            }
             document.querySelector('progress').style.display = 'none';
           })
           .catch(error => {

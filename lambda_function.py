@@ -166,7 +166,16 @@ def lambda_handler(event, context):
         logger.info("Processing paper generation request")
         raw_paper = generator.exam(event['topic'], event['mark'], event['subjectId'], event['info'])
         if raw_paper == "Error":
-            url = "Error"
+            logger.error("Failed to generate paper")
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Methods': 'POST,OPTIONS'
+                },
+                'body': json.dumps({'error': 'Failed to generate paper'})
+            }
         else:
             x = raw_paper[0]
             pdf_filename = "/tmp/shahu.pdf"
@@ -183,21 +192,16 @@ def lambda_handler(event, context):
                 ExpiresIn=3600  # URL will expire in 1 hour
             )
             
-            with open(pdf_filename, 'rb') as pdf_file:
-                pdf_data = pdf_file.read()
-                base64_pdf_data = base64.b64encode(pdf_data).decode('utf-8')
-
-        response = {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'POST,OPTIONS'
-            },
-            'body': json.dumps({'url': url})
-        }
-        
-        return response
+            logger.info("Successfully generated paper and presigned URL")
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Methods': 'POST,OPTIONS'
+                },
+                'body': json.dumps({'url': url})
+            }
         
     except Exception as e:
         logger.error(f"Error in lambda_handler: {str(e)}")
